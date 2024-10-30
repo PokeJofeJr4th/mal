@@ -13,6 +13,10 @@ impl MalObject {
         let Self::Symbol(s2) = self else { return false };
         s == s2
     }
+
+    pub fn nil() -> Self {
+        Self::Symbol("nil".to_string())
+    }
 }
 
 impl Display for MalObject {

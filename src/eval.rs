@@ -17,7 +17,7 @@ pub fn eval(o: MalObject, env: Env) -> MalObject {
             let [_, MalObject::List(lets), body] = &vec[..] else {
                 panic!()
             };
-            let inner_env = sub_env(env.clone());
+            let inner_env = sub_env(env);
             for i in 0..(lets.len() / 2) {
                 let MalObject::Symbol(var) = lets[i * 2].clone() else {
                     panic!()
@@ -36,6 +36,9 @@ pub fn eval(o: MalObject, env: Env) -> MalObject {
             func(args)
         }
         o @ (MalObject::Int(_) | MalObject::Function(_)) => o,
+        MalObject::Symbol(sym) if &*sym == "true" || &*sym == "false" || &*sym == "nil" => {
+            MalObject::Symbol(sym)
+        }
         MalObject::Symbol(s) => (*env.borrow()).get(&s).unwrap(),
     }
 }
