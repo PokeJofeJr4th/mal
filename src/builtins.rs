@@ -1,7 +1,7 @@
 #![allow(clippy::needless_pass_by_value)]
-use crate::types::MalObject;
+use crate::{env::Env, types::MalObject};
 
-pub fn add(values: Vec<MalObject>) -> MalObject {
+pub fn add(values: Vec<MalObject>, _env: Env) -> MalObject {
     let mut sum = 0;
     for v in values {
         let MalObject::Int(i) = v else { todo!() };
@@ -10,7 +10,7 @@ pub fn add(values: Vec<MalObject>) -> MalObject {
     MalObject::Int(sum)
 }
 
-pub fn sub(values: Vec<MalObject>) -> MalObject {
+pub fn sub(values: Vec<MalObject>, _env: Env) -> MalObject {
     let mut sub = 0;
     for v in values {
         let MalObject::Int(i) = v else { todo!() };
@@ -19,7 +19,7 @@ pub fn sub(values: Vec<MalObject>) -> MalObject {
     MalObject::Int(sub)
 }
 
-pub fn mul(values: Vec<MalObject>) -> MalObject {
+pub fn mul(values: Vec<MalObject>, _env: Env) -> MalObject {
     let mut mul = 1;
     for v in values {
         let MalObject::Int(i) = v else { todo!() };
@@ -28,7 +28,7 @@ pub fn mul(values: Vec<MalObject>) -> MalObject {
     MalObject::Int(mul)
 }
 
-pub fn count(values: Vec<MalObject>) -> MalObject {
+pub fn count(values: Vec<MalObject>, _env: Env) -> MalObject {
     match values.first() {
         None => MalObject::Int(0),
         Some(MalObject::List(l)) => MalObject::Int(l.len() as i32),
@@ -36,21 +36,21 @@ pub fn count(values: Vec<MalObject>) -> MalObject {
     }
 }
 
-pub fn is_list(values: Vec<MalObject>) -> MalObject {
+pub fn is_list(values: Vec<MalObject>, _env: Env) -> MalObject {
     match values.first() {
         Some(MalObject::List(_)) => MalObject::Symbol("true".to_string()),
         _ => MalObject::Symbol("false".to_string()),
     }
 }
 
-pub fn is_empty(values: Vec<MalObject>) -> MalObject {
+pub fn is_empty(values: Vec<MalObject>, _env: Env) -> MalObject {
     match values.first() {
         Some(MalObject::List(l)) if l.is_empty() => MalObject::Symbol("true".to_string()),
         _ => MalObject::Symbol("false".to_string()),
     }
 }
 
-pub fn eq(values: Vec<MalObject>) -> MalObject {
+pub fn eq(values: Vec<MalObject>, _env: Env) -> MalObject {
     if values.is_empty() {
         return MalObject::Symbol("true".to_string());
     }
@@ -62,7 +62,7 @@ pub fn eq(values: Vec<MalObject>) -> MalObject {
     MalObject::Symbol("true".to_string())
 }
 
-pub fn lt(values: Vec<MalObject>) -> MalObject {
+pub fn lt(values: Vec<MalObject>, _env: Env) -> MalObject {
     let [MalObject::Int(a), MalObject::Int(b)] = &values[..] else {
         return MalObject::Symbol("false".to_string());
     };
@@ -73,7 +73,7 @@ pub fn lt(values: Vec<MalObject>) -> MalObject {
     }
 }
 
-pub fn gt(values: Vec<MalObject>) -> MalObject {
+pub fn gt(values: Vec<MalObject>, _env: Env) -> MalObject {
     let [MalObject::Int(a), MalObject::Int(b)] = &values[..] else {
         return MalObject::Symbol("false".to_string());
     };
@@ -84,7 +84,7 @@ pub fn gt(values: Vec<MalObject>) -> MalObject {
     }
 }
 
-pub fn le(values: Vec<MalObject>) -> MalObject {
+pub fn le(values: Vec<MalObject>, _env: Env) -> MalObject {
     let [MalObject::Int(a), MalObject::Int(b)] = &values[..] else {
         return MalObject::Symbol("false".to_string());
     };
@@ -95,7 +95,7 @@ pub fn le(values: Vec<MalObject>) -> MalObject {
     }
 }
 
-pub fn ge(values: Vec<MalObject>) -> MalObject {
+pub fn ge(values: Vec<MalObject>, _env: Env) -> MalObject {
     let [MalObject::Int(a), MalObject::Int(b)] = &values[..] else {
         return MalObject::Symbol("false".to_string());
     };
@@ -104,4 +104,21 @@ pub fn ge(values: Vec<MalObject>) -> MalObject {
     } else {
         MalObject::Symbol("false".to_string())
     }
+}
+
+pub fn cons(mut values: Vec<MalObject>, _env: Env) -> MalObject {
+    let [obj, MalObject::List(ref mut l)] = &mut values[..] else {
+        panic!()
+    };
+    l.insert(0, obj.clone());
+    MalObject::List(core::mem::take(l))
+}
+
+pub fn concat(values: Vec<MalObject>, _env: Env) -> MalObject {
+    let mut output = Vec::new();
+    for value in values {
+        let MalObject::List(l) = value else { panic!() };
+        output.extend(l);
+    }
+    MalObject::List(output)
 }

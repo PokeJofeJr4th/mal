@@ -1,11 +1,13 @@
 use std::{fmt::Display, rc::Rc};
 
+use crate::env::Env;
+
 #[derive(Clone)]
 pub enum MalObject {
     List(Vec<MalObject>),
     Int(i32),
     Symbol(String),
-    Function(Rc<dyn Fn(Vec<MalObject>) -> MalObject>),
+    Function(Rc<dyn Fn(Vec<MalObject>, Env) -> MalObject>),
 }
 
 impl MalObject {

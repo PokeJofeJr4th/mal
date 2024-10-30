@@ -43,7 +43,7 @@ pub fn initial_env() -> Env {
     data.insert(">=".to_string(), MalObject::Function(Rc::new(builtins::ge)));
     data.insert(
         "list".to_string(),
-        MalObject::Function(Rc::new(MalObject::List)),
+        MalObject::Function(Rc::new(|l, _| MalObject::List(l))),
     );
     data.insert(
         "count".to_string(),
@@ -56,6 +56,14 @@ pub fn initial_env() -> Env {
     data.insert(
         "empty?".to_string(),
         MalObject::Function(Rc::new(builtins::is_empty)),
+    );
+    data.insert(
+        "cons".to_string(),
+        MalObject::Function(Rc::new(builtins::cons)),
+    );
+    data.insert(
+        "concat".to_string(),
+        MalObject::Function(Rc::new(builtins::concat)),
     );
 
     Rc::new(RefCell::new(EnvData { outer: None, data }))

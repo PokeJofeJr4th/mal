@@ -65,8 +65,8 @@ pub fn eval(mut ast: MalObject, env: Env) -> MalObject {
                     })
                     .collect();
                 let body = body.clone();
-                return MalObject::Function(Rc::new(move |args| {
-                    let inner_env = new_env(env.clone());
+                return MalObject::Function(Rc::new(move |args, env| {
+                    let inner_env = new_env(env);
                     assert!(args.len() == params.len());
                     for (arg, param) in args.into_iter().zip(params.iter().cloned()) {
                         inner_env.borrow_mut().set(param, arg);
@@ -79,7 +79,7 @@ pub fn eval(mut ast: MalObject, env: Env) -> MalObject {
                 let MalObject::Function(func) = args.remove(0) else {
                     panic!()
                 };
-                return func(args);
+                return func(args, env);
             }
             o @ (MalObject::Int(_) | MalObject::Function(_)) => return o,
             MalObject::Symbol(sym) if &*sym == "true" || &*sym == "false" || &*sym == "nil" => {
