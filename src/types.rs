@@ -8,6 +8,13 @@ pub enum MalObject {
     Function(Rc<dyn Fn(Vec<MalObject>) -> MalObject>),
 }
 
+impl MalObject {
+    pub fn is_symbol(&self, s: &str) -> bool {
+        let Self::Symbol(s2) = self else { return false };
+        s == s2
+    }
+}
+
 impl Display for MalObject {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
