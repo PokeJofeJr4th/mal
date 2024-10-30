@@ -1,5 +1,6 @@
 use std::fmt::Display;
 
+#[derive(Clone)]
 pub enum MalObject {
     List(Vec<MalObject>),
     Int(i32),
