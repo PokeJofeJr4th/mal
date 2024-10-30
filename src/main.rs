@@ -6,6 +6,7 @@ use eval::{eval, initial_env, Env};
 use reader::{read_form, read_str};
 use types::MalObject;
 
+mod builtins;
 mod eval;
 mod reader;
 mod types;

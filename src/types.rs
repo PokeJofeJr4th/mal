@@ -1,10 +1,11 @@
-use std::fmt::Display;
+use std::{fmt::Display, rc::Rc};
 
 #[derive(Clone)]
 pub enum MalObject {
     List(Vec<MalObject>),
     Int(i32),
     Symbol(String),
+    Function(Rc<dyn Fn(Vec<MalObject>) -> MalObject>),
 }
 
 impl Display for MalObject {
@@ -23,6 +24,7 @@ impl Display for MalObject {
                 }
                 write!(f, ")")
             }
+            Self::Function(_) => f.debug_struct("Function").finish_non_exhaustive(),
         }
     }
 }
