@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::{
     env::{sub_env, Env},
     types::MalObject,
@@ -43,6 +45,27 @@ pub fn eval(o: MalObject, env: Env) -> MalObject {
             } else {
                 eval(vec[2].clone(), env)
             }
+        }
+        MalObject::List(vec) if vec.first().is_some_and(|v| v.is_symbol("fn*")) => {
+            let [_, MalObject::List(params), body] = &vec[..] else {
+                panic!()
+            };
+            let params: Vec<_> = params
+                .iter()
+                .map(|p| {
+                    let MalObject::Symbol(s) = p else { panic!() };
+                    s.clone()
+                })
+                .collect();
+            let body = body.clone();
+            MalObject::Function(Rc::new(move |args| {
+                let inner_env = sub_env(env.clone());
+                assert!(args.len() == params.len());
+                for (arg, param) in args.into_iter().zip(params.iter().cloned()) {
+                    inner_env.borrow_mut().set(param, arg);
+                }
+                eval(body.clone(), inner_env)
+            }))
         }
         MalObject::List(vec) => {
             let mut args: Vec<_> = vec.into_iter().map(|v| eval(v, env.clone())).collect();
