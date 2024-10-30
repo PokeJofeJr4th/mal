@@ -1,7 +1,7 @@
 use std::rc::Rc;
 
 use crate::{
-    env::{sub_env, Env},
+    env::{new_env, Env},
     types::MalObject,
 };
 
@@ -19,7 +19,7 @@ pub fn eval(o: MalObject, env: Env) -> MalObject {
             let [_, MalObject::List(lets), body] = &vec[..] else {
                 panic!()
             };
-            let inner_env = sub_env(env);
+            let inner_env = new_env(env);
             for i in 0..(lets.len() / 2) {
                 let MalObject::Symbol(var) = lets[i * 2].clone() else {
                     panic!()
@@ -59,7 +59,7 @@ pub fn eval(o: MalObject, env: Env) -> MalObject {
                 .collect();
             let body = body.clone();
             MalObject::Function(Rc::new(move |args| {
-                let inner_env = sub_env(env.clone());
+                let inner_env = new_env(env.clone());
                 assert!(args.len() == params.len());
                 for (arg, param) in args.into_iter().zip(params.iter().cloned()) {
                     inner_env.borrow_mut().set(param, arg);

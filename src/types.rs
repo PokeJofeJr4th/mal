@@ -39,3 +39,14 @@ impl Display for MalObject {
         }
     }
 }
+
+impl PartialEq for MalObject {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Int(a), Self::Int(b)) => *a == *b,
+            (Self::Symbol(a), Self::Symbol(b)) => a == b,
+            (Self::List(a), Self::List(b)) => a == b,
+            _ => false,
+        }
+    }
+}

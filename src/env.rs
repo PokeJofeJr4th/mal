@@ -24,11 +24,7 @@ impl EnvData {
 
 pub type Env = Rc<RefCell<EnvData>>;
 
-pub fn new_env(data: HashMap<String, MalObject>) -> Env {
-    Rc::new(RefCell::new(EnvData { outer: None, data }))
-}
-
-pub fn sub_env(env: Env) -> Env {
+pub fn new_env(env: Env) -> Env {
     Rc::new(RefCell::new(EnvData {
         outer: Some(env),
         data: HashMap::new(),
@@ -36,9 +32,31 @@ pub fn sub_env(env: Env) -> Env {
 }
 
 pub fn initial_env() -> Env {
-    let mut hm = HashMap::new();
-    hm.insert("+".to_string(), MalObject::Function(Rc::new(builtins::add)));
-    hm.insert("-".to_string(), MalObject::Function(Rc::new(builtins::sub)));
-    hm.insert("*".to_string(), MalObject::Function(Rc::new(builtins::mul)));
-    new_env(hm)
+    let mut data = HashMap::new();
+    data.insert("+".to_string(), MalObject::Function(Rc::new(builtins::add)));
+    data.insert("-".to_string(), MalObject::Function(Rc::new(builtins::sub)));
+    data.insert("*".to_string(), MalObject::Function(Rc::new(builtins::mul)));
+    data.insert("=".to_string(), MalObject::Function(Rc::new(builtins::eq)));
+    data.insert("<".to_string(), MalObject::Function(Rc::new(builtins::lt)));
+    data.insert(">".to_string(), MalObject::Function(Rc::new(builtins::gt)));
+    data.insert("<=".to_string(), MalObject::Function(Rc::new(builtins::le)));
+    data.insert(">=".to_string(), MalObject::Function(Rc::new(builtins::ge)));
+    data.insert(
+        "list".to_string(),
+        MalObject::Function(Rc::new(MalObject::List)),
+    );
+    data.insert(
+        "count".to_string(),
+        MalObject::Function(Rc::new(builtins::count)),
+    );
+    data.insert(
+        "list?".to_string(),
+        MalObject::Function(Rc::new(builtins::is_list)),
+    );
+    data.insert(
+        "empty?".to_string(),
+        MalObject::Function(Rc::new(builtins::is_empty)),
+    );
+
+    Rc::new(RefCell::new(EnvData { outer: None, data }))
 }
