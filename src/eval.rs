@@ -28,6 +28,22 @@ pub fn eval(o: MalObject, env: Env) -> MalObject {
             }
             eval(body.clone(), inner_env)
         }
+        MalObject::List(vec) if vec.first().is_some_and(|v| v.is_symbol("do")) => {
+            let mut ret = None;
+            for expr in vec.into_iter().skip(1) {
+                ret = Some(eval(expr, env.clone()));
+            }
+            ret.unwrap_or_else(MalObject::nil)
+        }
+        MalObject::List(vec) if vec.first().is_some_and(|v| v.is_symbol("if")) => {
+            let start = eval(vec[1].clone(), env.clone());
+            if start.is_symbol("nil") || start.is_symbol("false") {
+                vec.get(3)
+                    .map_or_else(MalObject::nil, |else_block| eval(else_block.clone(), env))
+            } else {
+                eval(vec[2].clone(), env)
+            }
+        }
         MalObject::List(vec) => {
             let mut args: Vec<_> = vec.into_iter().map(|v| eval(v, env.clone())).collect();
             let MalObject::Function(func) = args.remove(0) else {
